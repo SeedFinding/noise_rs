@@ -1,7 +1,9 @@
 #![allow(dead_code)]
+
 use java_random::Random;
 use std::collections::HashMap;
 use intmap::IntMap;
+use crate::noise::Noise;
 
 pub const F2: f64 = 0.3660254037844386;
 pub const G2: f64 = 0.21132486540518713;
@@ -25,46 +27,35 @@ pub const GRADIENT: [[i32; 3]; 16] =
         [-1, 1, 0],
         [0, -1, -1]];
 
-#[derive(Clone)] // remove Debug for 256 size static array
+#[derive(Clone)]
 pub struct SimplexNoise {
-    x0: f64,
-    y0: f64,
-    z0: f64,
-    permutations: [u8; 256],
-    cache2d: IntMap<f64>,
-    cache3d: HashMap<u128, f64>,
+    pub noise: Noise,
+    pub cache2d: IntMap<f64>,
+    pub cache3d: HashMap<u128, f64>,
 }
 
 impl SimplexNoise {
-    pub fn init(mut random: Random) -> SimplexNoise {
-
-
-        let x0: f64 = random.next_double() * 256.0;
-        let y0: f64 = random.next_double() * 256.0;
-        let z0: f64 = random.next_double() * 256.0;
-        let mut permutations: [u8; 256] = [0; 256];
-        for index in 0u8..=255 {
-            permutations[index as usize] = index;
-        }
-        for index in 0u8..=255 {
-            let random_index: u8 = random.next_int_n(256i32 - index as i32) as u8;
-            let temp: u8 = permutations[(random_index + index) as usize];
-            permutations[(random_index + index) as usize] = permutations[index as usize];
-            permutations[index as usize] = temp;
-        }
+    #[cold]
+    pub fn new(noise:Noise) -> Self {
         let cache2d: IntMap<f64> = IntMap::with_capacity(1024);
         let cache3d: HashMap<u128, f64> = HashMap::new();
-        SimplexNoise { x0, y0, z0, permutations, cache2d, cache3d }
+        SimplexNoise { noise, cache2d, cache3d }
+    }
+    pub fn init(mut random: Random) -> SimplexNoise {
+        let noise:Noise=Noise::init(random);
+        let cache2d: IntMap<f64> = IntMap::with_capacity(1024);
+        let cache3d: HashMap<u128, f64> = HashMap::new();
+        SimplexNoise { noise, cache2d, cache3d }
     }
     fn lookup(&self, n: u8) -> u8 {
-        self.permutations[(n & 0xff) as usize]
+        self.noise.permutations[(n & 0xff) as usize]
     }
 
     fn dot(g: [i32; 3], d: f64, d2: f64, d3: f64) -> f64 {
         (g[0 as usize]) as f64 * d + (g[1 as usize]) as f64 * d2 + (g[2 as usize]) as f64 * d3
     }
 
-    pub fn get_corner_noise3d(n: u8, x: f64, y: f64, z: f64, max: f64) -> f64 {
+    fn get_corner_noise3d(n: u8, x: f64, y: f64, z: f64, max: f64) -> f64 {
         let res: f64;
         let mut contribution: f64 = max - x * x - y * y - z * z;
         if contribution < 0.0 {
@@ -224,6 +215,19 @@ impl SimplexNoise {
         let t2: f64 = Self::get_corner_noise3d(gi2, x2, y2, z2, 0.6f64);
         let t3: f64 = Self::get_corner_noise3d(gi3, x3, y3, z3, 0.6f64);
         32.0f64 * (t0 + t1 + t2 + t3)
+    }
+
+    pub fn get_x0(&self) -> f64 {
+        self.noise.x0
+    }
+    pub fn get_y0(&self) -> f64 {
+        self.noise.y0
+    }
+    pub fn get_z0(&self) -> f64 {
+        self.noise.z0
+    }
+    pub fn get_coordinates(&self) -> (f64, f64, f64) {
+        (self.noise.x0, self.noise.y0, self.noise.z0)
     }
 }
 

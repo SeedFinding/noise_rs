@@ -2,6 +2,7 @@
 use java_random::Random;
 use std::collections::HashMap;
 use intmap::IntMap;
+use crate::noise::Noise;
 
 #[derive(Clone)]
 pub struct PerlinNoise {
@@ -14,5 +15,13 @@ pub struct PerlinNoise {
 }
 
 impl PerlinNoise {
-    pub fn init(mut random: Random) -> () {}
+    pub fn init(mut random: Random,octaves:Vec<i32>) -> () {
+        let start=-octaves.first().expect("Missing an element");
+        let end=octaves.last().expect("Missing an element");
+        let length=start+end+1;
+        if length<1 {
+           panic!("You need at least one octave")
+        }
+        let noise:Noise=Noise::init(random);
+    }
 }
