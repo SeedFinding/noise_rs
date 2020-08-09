@@ -1,0 +1,17 @@
+[package]
+name = "noise_rs"
+version = "0.1.0"
+authors = ["Neil <neilhube12@gmail.com>"]
+edition = "2018"
+description="The perlin and simplex noise implementation in 2d and 3d"
+categories=["algorithms","data-structures"]
+license="MIT"
+
+[dependencies]
+
+
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+opt-level = 3
