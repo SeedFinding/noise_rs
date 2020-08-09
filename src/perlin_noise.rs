@@ -1,4 +1,7 @@
+#![allow(dead_code)]
+use java_random::Random;
 use std::collections::HashMap;
+use intmap::IntMap;
 
 #[derive(Clone)]
 pub struct PerlinNoise {
@@ -11,5 +14,5 @@ pub struct PerlinNoise {
 }
 
 impl PerlinNoise {
-    pub fn init(mut random: Random) -> PerlinNoise {}
+    pub fn init(mut random: Random) -> () {}
 }

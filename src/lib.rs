@@ -1,2 +1,2 @@
-mod perlin_noise;
-mod simplex_noise;
+pub mod perlin_noise;
+pub mod simplex_noise;
