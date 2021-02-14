@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::perlin_noise::PerlinNoise;
 use java_random::Random;
 

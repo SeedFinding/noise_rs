@@ -3,6 +3,7 @@ pub mod perlin_noise;
 pub mod simplex_noise;
 mod math;
 mod double_perlin_noise;
+mod voronoi;
 
 
 #[cfg(test)]
