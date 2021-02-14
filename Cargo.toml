@@ -1,6 +1,6 @@
 [package]
 name = "noise_rs"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Neil <neilhube12@gmail.com>"]
 edition = "2018"
 description="The perlin and simplex noise implementation in 2d and 3d"
