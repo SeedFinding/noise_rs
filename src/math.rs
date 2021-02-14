@@ -1,5 +1,19 @@
 #![allow(dead_code)]
 
+use std::cmp::min;
+
+use sha2::{Digest, Sha256};
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sha() {
+        assert_eq!(sha2long(1551515151585454), 4053242177535254290)
+    }
+}
+
 pub fn lfloor(x: f64) -> i64 {
     let int_x: i64 = x as i64;
     if x < (int_x as f64) { int_x - 1i64 } else { int_x }
@@ -90,3 +104,21 @@ pub fn sqrt(f: f32) -> f32 {
 pub fn max(a: f32, b: f32) -> f32 {
     if a >= b { a } else { b }
 }
+
+pub fn sha2long(mut seed: u64) -> u64 {
+    let mut bytes: [u8; 8] = [0; 8];
+    for i in 0..8 {
+        bytes[i] = (seed & 255) as u8;
+        seed >>= 8;
+    }
+    let mut hasher = Sha256::new();
+    hasher.update(bytes);
+    let result = hasher.finalize();
+    let mut ret_val: u64 = (result[0] & 0xFF) as u64;
+    for i in 1..min(8, result.len()) {
+        ret_val |= (((result[i] & 0xFF) as u64).wrapping_shl((i << 3) as u32)) as u64;
+    }
+    ret_val
+}
+
+
