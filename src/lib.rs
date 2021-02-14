@@ -1,9 +1,9 @@
 mod noise;
 pub mod perlin_noise;
 pub mod simplex_noise;
-mod math;
-mod double_perlin_noise;
-mod voronoi;
+pub mod math;
+pub mod double_perlin_noise;
+pub mod voronoi;
 
 
 #[cfg(test)]
