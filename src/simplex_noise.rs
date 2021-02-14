@@ -36,19 +36,19 @@ pub struct SimplexNoise {
 
 impl SimplexNoise {
     #[cold]
-    pub fn new(noise:Noise) -> Self {
-        let cache2d: IntMap<f64> = IntMap::with_capacity(1024);
-        let cache3d: HashMap<u128, f64> = HashMap::new();
-        SimplexNoise { noise, cache2d, cache3d }
+    pub fn new(noise: Noise) -> Self {
+        SimplexNoise {
+            noise,
+            cache2d: IntMap::with_capacity(1024),
+            cache3d: HashMap::new(),
+        }
     }
-    pub fn init(mut random: Random) -> SimplexNoise {
-        let noise:Noise=Noise::init(random);
-        let cache2d: IntMap<f64> = IntMap::with_capacity(1024);
-        let cache3d: HashMap<u128, f64> = HashMap::new();
-        SimplexNoise { noise, cache2d, cache3d }
+    pub fn init(random: Random) -> SimplexNoise {
+        SimplexNoise::new(Noise::init(random))
     }
+
     fn lookup(&self, n: u8) -> u8 {
-        self.noise.permutations[(n & 0xff) as usize]
+        self.noise.lookup(n as i32)
     }
 
     fn dot(g: [i32; 3], d: f64, d2: f64, d3: f64) -> f64 {
