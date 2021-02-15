@@ -18,14 +18,14 @@ mod noise_test {
 
     #[test]
     fn test_gen_1() {
-        let noise=Noise::init(Random::with_seed(1));
+        let noise=Noise::new(&mut Random::with_seed(1));
         let value=noise.get_noise_value(0f64,0f64,0f64,0f64,0f64);
         assert_eq!(value,0.10709059654197703f64)
     }
 
     #[test]
     fn test_gen_1million() {
-        let noise=Noise::init(Random::with_seed(1));
+        let noise=Noise::new(&mut Random::with_seed(1));
         let mut score:f64=0.0;
         let bound=100;
         for x in 0..bound {
@@ -40,12 +40,8 @@ mod noise_test {
 }
 
 impl Noise {
-    #[cold]
-    pub fn new(x0: f64, y0: f64, z0: f64, permutations: [u8; 256]) -> Self {
-        Noise { x0, y0, z0, permutations }
-    }
 
-    pub fn init(mut random: Random) -> Noise {
+    pub fn new(random: &mut Random) -> Noise {
         let x0: f64 = random.next_double() * 256.0;
         let y0: f64 = random.next_double() * 256.0;
         let z0: f64 = random.next_double() * 256.0;

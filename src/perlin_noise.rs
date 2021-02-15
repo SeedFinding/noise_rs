@@ -8,7 +8,7 @@ use crate::math::lfloor;
 
 pub const SKIP_262: LCG = LCG::combine_java(262);
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct PerlinNoise {
     lacunarity: f64,
     persistence: f64,
@@ -25,14 +25,29 @@ mod perlin_test {
 
     #[test]
     fn test_coordinates() {
-        let perlin=PerlinNoise::new(Random::with_seed(1),create_range(1,2));
-        let value=perlin.sample_default(0f64,0f64,0f64);
-        assert_eq!(value,-0.20402661037924066f64)
+        let perlin = PerlinNoise::new(&mut Random::with_seed(1), create_range(1, 2));
+        let value = perlin.sample_default(0f64, 0f64, 0f64);
+        assert_eq!(value, -0.20402661037924066f64)
+    }
+
+    #[test]
+    fn test_gen_1million() {
+        let perlin_noise = PerlinNoise::new(&mut Random::with_seed(1), create_range(1, 2));
+        let mut score: f64 = 0.0;
+        let bound = 100;
+        for x in 0..bound {
+            for y in 0..bound {
+                for z in 0..bound {
+                    score += perlin_noise.sample_default(x as f64, y as f64, z as f64);
+                }
+            }
+        }
+        assert_eq!(score, 2.5123135162530326);
     }
 }
 
 impl PerlinNoise {
-    pub fn new(mut random: Random, octaves: Vec<i32>) -> PerlinNoise {
+    pub fn new(random: &mut Random, octaves: Vec<i32>) -> PerlinNoise {
         if octaves.is_empty() {
             panic!("No octaves defined")
         }
@@ -42,28 +57,28 @@ impl PerlinNoise {
         if length < 1 {
             panic!("You need at least one octave")
         }
-        let noise: Noise = Noise::init(random);
-        let mut noise_octaves: Vec<Option<Noise>> = vec![None; 5];
+        let noise: Noise = Noise::new(random);
+        let mut noise_octaves: Vec<Option<Noise>> = vec![None; length as usize];
 
         if end >= 0 && end < length && octaves.contains(&0) {
             noise_octaves[end as usize] = Option::from(noise.clone());
         }
         for i in end + 1..length {
             if i >= 0 && octaves.contains(&(end - i)) {
-                noise_octaves[i as usize] = Option::from(Noise::init(random));
+                noise_octaves[i as usize] = Option::from(Noise::new(random));
                 continue;
             }
             random.advance(SKIP_262);
         }
         if end > 0 {
             let noise_seed: i64 = (noise.get_noise_value(0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64) * 9.223372036854776E18) as i64;
-            random = Random::with_seed(noise_seed as u64);
-            for i in end - 1..=0 {
+            random.set_seed(noise_seed as u64);
+            for i in (0..end).rev() {
                 if i < length && octaves.contains(&(end - i)) {
-                    noise_octaves[i as usize] = Option::from(Noise::init(random));
-                    continue;
+                    noise_octaves[i as usize] = Option::from(Noise::new(random));
+                } else {
+                    random.advance(SKIP_262);
                 }
-                random.advance(SKIP_262);
             }
         }
         let persistence: f64 = 2f64.powi(end);
@@ -87,10 +102,8 @@ impl PerlinNoise {
         let mut persistence: f64 = self.persistence;
         // distance between octaves, increased for each by a factor of 2
         let mut lacunarity: f64 = self.lacunarity;
-        dbg!(&self.noise_octaves);
         for sampler in &self.noise_octaves {
-            if let Some(noise)=sampler {
-
+            if let Some(noise) = sampler {
                 noise_value += noise.get_noise_value(
                     Self::wrap(x * persistence),
                     if use_default_y { -noise.y0 } else { Self::wrap(y * persistence) },
@@ -106,8 +119,8 @@ impl PerlinNoise {
         return noise_value;
     }
 
-    pub fn sample_surface(&self, x: f64, z: f64,y_amplification: f64, y_min: f64)->f64{
-        self.sample(x,0.0f64,z,y_amplification,y_min,false)
+    pub fn sample_surface(&self, x: f64, z: f64, y_amplification: f64, y_min: f64) -> f64 {
+        self.sample(x, 0.0f64, z, y_amplification, y_min, false)
     }
 
     fn wrap(x: f64) -> f64 {

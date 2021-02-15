@@ -68,8 +68,8 @@ impl SimplexNoise {
             cache3d: HashMap::new(),
         }
     }
-    pub fn init(random: Random) -> SimplexNoise {
-        SimplexNoise::new(Noise::init(random))
+    pub fn init(mut random: Random) -> SimplexNoise {
+        SimplexNoise::new(Noise::new(&mut random))
     }
 
     fn lookup(&self, n: u8) -> u8 {
