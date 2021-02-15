@@ -92,7 +92,7 @@ impl SimplexNoise {
         res
     }
     pub fn get_value_2d(&mut self, x: f64, z: f64) -> f64 {
-        let key: u64 = ((x as u64) << 32 | (z as u64)) as u64;
+        let key: u64 = (((x as u32) as u64) << 32 | ((z as u32) as u64)) as u64;
         let value: f64 = *self.cache2d.get(key).unwrap_or(&f64::MAX);
         if value != f64::MAX {
             return value;
@@ -136,7 +136,7 @@ impl SimplexNoise {
     }
 
     pub fn get_value_3d(&mut self, x: f64, y: f64, z: f64) -> f64 {
-        let key: u128 = ((x as u128) << 64 | (y as u128) << 32 | (z as u128)) as u128;
+        let key: u128 = (((x as u32) as u128) << 64 | ((y as u32) as u128) << 32 | ((z as u32) as u128)) as u128;
         let value: f64 = *self.cache3d.get(&key).unwrap_or(&f64::MAX);
         if value != f64::MAX {
             return value;

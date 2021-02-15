@@ -23,6 +23,13 @@ mod double_perlin_test {
     }
 
     #[test]
+    fn test_gen2() {
+        let double_perlin = DoublePerlinNoise::new(&mut Random::with_seed(1), create_range(-7, -6));
+        let value = double_perlin.sample(25f64, 0f64, 24f64);
+        assert_eq!(value, 0.07304369034293899f64)
+    }
+
+    #[test]
     fn test_gen_1million() {
         let noise = DoublePerlinNoise::new(&mut Random::with_seed(1), create_range(1, 2));
         let mut score: f64 = 0.0;
