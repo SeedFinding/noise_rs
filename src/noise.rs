@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use java_random::Random;
 use crate::math::{modf, lerp3, grad};
 
-#[derive(Clone, Copy)]
+#[derive(Clone,Debug)]
 pub struct Noise {
     pub x0: f64,
     pub y0: f64,
@@ -11,11 +11,40 @@ pub struct Noise {
     pub permutations: [u8; 256],
 }
 
+
+#[cfg(test)]
+mod noise_test {
+    use super::*;
+
+    #[test]
+    fn test_gen_1() {
+        let noise=Noise::init(Random::with_seed(1));
+        let value=noise.get_noise_value(0f64,0f64,0f64,0f64,0f64);
+        assert_eq!(value,0.10709059654197703f64)
+    }
+
+    #[test]
+    fn test_gen_1million() {
+        let noise=Noise::init(Random::with_seed(1));
+        let mut score:f64=0.0;
+        let bound=100;
+        for x in 0..bound {
+            for y in 0..bound {
+                for z in 0..bound {
+                    score+=noise.get_noise_value(x as f64, y as f64, z as f64, 0f64, 0f64);
+                }
+            }
+        }
+        assert_eq!(score,5.106111820344766f64);
+    }
+}
+
 impl Noise {
     #[cold]
     pub fn new(x0: f64, y0: f64, z0: f64, permutations: [u8; 256]) -> Self {
         Noise { x0, y0, z0, permutations }
     }
+
     pub fn init(mut random: Random) -> Noise {
         let x0: f64 = random.next_double() * 256.0;
         let y0: f64 = random.next_double() * 256.0;
@@ -33,7 +62,7 @@ impl Noise {
         Noise { x0, y0, z0, permutations }
     }
 
-    pub fn get_noise_value(self, x: f64, y: f64, z: f64, y_amplification: f64, min_y: f64) -> f64 {
+    pub fn get_noise_value(&self, x: f64, y: f64, z: f64, y_amplification: f64, min_y: f64) -> f64 {
         let offset_x: f64 = x + self.x0;
         let offset_y: f64 = y + self.y0;
         let offset_z: f64 = z + self.z0;
@@ -66,7 +95,7 @@ impl Noise {
             }
         }
     }
-    pub fn sample_and_lerp(self, int_x: i32, int_y: i32, int_z: i32, frac_x: f64, frac_y: f64, frac_z: f64, smooth_x: f64, smooth_y: f64, smooth_z: f64) -> f64 {
+    pub fn sample_and_lerp(&self, int_x: i32, int_y: i32, int_z: i32, frac_x: f64, frac_y: f64, frac_z: f64, smooth_x: f64, smooth_y: f64, smooth_z: f64) -> f64 {
         let px_y = (self.lookup(int_x) as i32) + int_y;
         let px1_y = (self.lookup(int_x + 1) as i32) + int_y;
 
@@ -88,13 +117,17 @@ impl Noise {
         lerp3(smooth_x, smooth_y, smooth_z, x1, x2, x3, x4, x5, x6, x7, x8)
     }
 
-    pub fn lookup(self, index: i32) -> u8 {
+    pub fn lookup(&self, index: i32) -> u8 {
         self.permutations[(index & 0xff) as usize]
     }
 
-    pub fn smooth_step(x: f64) -> f64 {
+    pub fn smooth_step_fast(x: f64) -> f64 {
+        // this is sadly incorrect due to lost of precision sniff
         let x_3: f64 = x * x * x;
         let x_4: f64 = x_3 * x;
         10.0f64 * x_3 - 15.0f64 * x_4 + 6.0f64 * x_4 * x
+    }
+    pub fn smooth_step(x: f64) -> f64 {
+        x * x * x * (x * (x * 6.0f64 - 15.0f64) + 10.0f64)
     }
 }

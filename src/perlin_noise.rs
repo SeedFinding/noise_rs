@@ -8,7 +8,7 @@ use crate::math::lfloor;
 
 pub const SKIP_262: LCG = LCG::combine_java(262);
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct PerlinNoise {
     lacunarity: f64,
     persistence: f64,
@@ -46,7 +46,7 @@ impl PerlinNoise {
         let mut noise_octaves: Vec<Option<Noise>> = vec![None; 5];
 
         if end >= 0 && end < length && octaves.contains(&0) {
-            noise_octaves[end as usize] = Option::from(noise);
+            noise_octaves[end as usize] = Option::from(noise.clone());
         }
         for i in end + 1..length {
             if i >= 0 && octaves.contains(&(end - i)) {
@@ -87,7 +87,7 @@ impl PerlinNoise {
         let mut persistence: f64 = self.persistence;
         // distance between octaves, increased for each by a factor of 2
         let mut lacunarity: f64 = self.lacunarity;
-
+        dbg!(&self.noise_octaves);
         for sampler in &self.noise_octaves {
             if let Some(noise)=sampler {
 
