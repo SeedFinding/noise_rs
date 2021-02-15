@@ -6,7 +6,7 @@ use intmap::IntMap;
 use crate::noise::Noise;
 use crate::math::lfloor;
 
-pub const SKIP_262: LCG = LCG { multiplier: 253119540505593, addend: 184089911826014 };
+pub const SKIP_262: LCG = LCG::combine_java(262);
 
 #[derive(Clone)]
 pub struct PerlinNoise {
@@ -20,7 +20,6 @@ pub struct PerlinNoise {
 
 impl PerlinNoise {
     pub fn init(mut random: Random, octaves: Vec<i32>) -> PerlinNoise {
-        let skip_random: Random = Random::with_seed_and_lcg(0, SKIP_262);
         if octaves.is_empty() {
             panic!("No octaves defined")
         }
@@ -41,9 +40,7 @@ impl PerlinNoise {
                 noise_octaves[i as usize] = Option::from(Noise::init(random));
                 continue;
             }
-            println!("1 {}", random.get_raw_seed());
-            random.skip(skip_random);
-            println!("2 {}", random.get_raw_seed());
+            random.advance(SKIP_262);
         }
         if end > 0 {
             let noise_seed: i64 = (noise.get_noise_value(0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64) * 9.223372036854776E18) as i64;
@@ -53,9 +50,7 @@ impl PerlinNoise {
                     noise_octaves[i as usize] = Option::from(Noise::init(random));
                     continue;
                 }
-                println!("3 {}", random.get_raw_seed());
-                random.skip(skip_random);
-                println!("4 {}", random.get_raw_seed());
+                random.advance(SKIP_262);
             }
         }
         let persistence: f64 = 2f64.powi(end);

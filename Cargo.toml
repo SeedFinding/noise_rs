@@ -1,6 +1,6 @@
 [package]
 name = "noise_rs"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Neil <neilhube12@gmail.com>"]
 edition = "2018"
 description="The perlin and simplex noise implementation in 2d and 3d"
@@ -9,7 +9,7 @@ license="MIT"
 
 [dependencies]
 intmap = "0.7.0"
-java_random = "0.1.4"
+java_random = "0.1.6"
 sha2 = "0.9.1"
 
 [profile.dev]
