@@ -18,8 +18,21 @@ pub struct PerlinNoise {
 }
 
 
+#[cfg(test)]
+mod perlin_test {
+    use super::*;
+    use crate::create_range;
+
+    #[test]
+    fn test_coordinates() {
+        let perlin=PerlinNoise::new(Random::with_seed(1),create_range(1,2));
+        let value=perlin.sample_default(0f64,0f64,0f64);
+        assert_eq!(value,-0.20402661037924066f64)
+    }
+}
+
 impl PerlinNoise {
-    pub fn init(mut random: Random, octaves: Vec<i32>) -> PerlinNoise {
+    pub fn new(mut random: Random, octaves: Vec<i32>) -> PerlinNoise {
         if octaves.is_empty() {
             panic!("No octaves defined")
         }
@@ -64,18 +77,18 @@ impl PerlinNoise {
         }
     }
 
-    pub fn sample_default(self, x: f64, y: f64, z: f64) -> f64 {
+    pub fn sample_default(&self, x: f64, y: f64, z: f64) -> f64 {
         self.sample(x, y, z, 0.0f64, 0.0f64, false)
     }
 
-    pub fn sample(self, x: f64, y: f64, z: f64, y_amplification: f64, y_min: f64, use_default_y: bool) -> f64 {
+    pub fn sample(&self, x: f64, y: f64, z: f64, y_amplification: f64, y_min: f64, use_default_y: bool) -> f64 {
         let mut noise_value: f64 = 0.0f64;
         // contribution of each octaves to the final noise, diminished by a factor of 2 (or increased by factor of 0.5)
         let mut persistence: f64 = self.persistence;
         // distance between octaves, increased for each by a factor of 2
         let mut lacunarity: f64 = self.lacunarity;
 
-        for sampler in self.noise_octaves {
+        for sampler in &self.noise_octaves {
             if let Some(noise)=sampler {
 
                 noise_value += noise.get_noise_value(
@@ -93,7 +106,7 @@ impl PerlinNoise {
         return noise_value;
     }
 
-    pub fn sample_surface(self, x: f64, z: f64,y_amplification: f64, y_min: f64)->f64{
+    pub fn sample_surface(&self, x: f64, z: f64,y_amplification: f64, y_min: f64)->f64{
         self.sample(x,0.0f64,z,y_amplification,y_min,false)
     }
 

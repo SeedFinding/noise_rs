@@ -9,14 +9,27 @@ pub struct DoublePerlinNoise {
     second_perlin: PerlinNoise,
 }
 
+#[cfg(test)]
+mod double_perlin_test {
+    use super::*;
+    use crate::create_range;
+
+    #[test]
+    fn test_gen1() {
+        let double_perlin=DoublePerlinNoise::new(Random::with_seed(1),create_range(1,2));
+        let value=double_perlin.sample(0f64,0f64,0f64);
+        assert_eq!(value,-0.273983041873796f64)
+    }
+}
+
 impl DoublePerlinNoise {
     pub fn new(random: Random, octaves: Vec<i32>) -> Self {
         let min_octave = octaves.iter().min().unwrap_or(&0);
         let max_octave = octaves.iter().max().unwrap_or(&0);
         DoublePerlinNoise {
             amplitude: 0.16666666666666666f64 / Self::create_amplitude(max_octave - min_octave),
-            first_perlin: PerlinNoise::init(random, octaves.clone()),
-            second_perlin: PerlinNoise::init(random, octaves.clone()),
+            first_perlin: PerlinNoise::new(random, octaves.clone()),
+            second_perlin: PerlinNoise::new(random, octaves.clone()),
         }
     }
 
@@ -24,7 +37,7 @@ impl DoublePerlinNoise {
         0.1f64 * (1.0f64 + 1.0f64 / ((length + 1) as f64))
     }
 
-    pub fn sample(self,x:f64,y:f64,z:f64)->f64{
+    pub fn sample(&self,x:f64,y:f64,z:f64)->f64{
         let skewed_x = x * 1.0181268882175227f64;
         let skewed_y = y * 1.0181268882175227f64;
         let skewed_z = z * 1.0181268882175227f64;
