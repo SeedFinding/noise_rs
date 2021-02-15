@@ -1,6 +1,6 @@
 [package]
 name = "noise_rs"
-version = "0.1.12"
+version = "0.1.13"
 authors = ["Neil <neilhube12@gmail.com>"]
 edition = "2018"
 description="The perlin and simplex noise implementation in 2d and 3d"
@@ -17,3 +17,8 @@ opt-level = 3
 
 [profile.release]
 opt-level = 3
+
+
+[lib]
+name="noise_rs"
+crate-types = ["rlib", "dylib", "bin"]
