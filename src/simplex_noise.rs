@@ -27,7 +27,7 @@ pub const GRADIENT: [[i32; 3]; 16] =
         [-1, 1, 0],
         [0, -1, -1]];
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct SimplexNoise {
     pub noise: Noise,
     pub cache2d: IntMap<f64>,
