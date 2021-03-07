@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::cmp::min;
+use std::cmp;
 
 use sha2::{Digest, Sha256};
 
@@ -31,6 +31,40 @@ pub fn floor(x: f64) -> i32 {
     if x < (int_x as f64) { int_x - 1i32 } else { int_x }
 }
 
+
+pub fn smooth_step_fast(x: f64) -> f64 {
+    // this is sadly incorrect due to lost of precision sniff
+    let x_3: f64 = x * x * x;
+    let x_4: f64 = x_3 * x;
+    10.0f64 * x_3 - 15.0f64 * x_4 + 6.0f64 * x_4 * x
+}
+pub fn smooth_step(x: f64) -> f64 {
+    x * x * x * (x * (x * 6.0f64 - 15.0f64) + 10.0f64)
+}
+
+pub fn min(a: f64, b: f64) -> f64 {
+    match a.partial_cmp(&b) {
+        None => { a }
+        Some(order) => {
+            match order {
+                cmp::Ordering::Less => { a }
+                _ => b
+            }
+        }
+    }
+}
+
+pub fn sqr(d: f64) -> f64 {
+    d * d
+}
+
+pub fn wrap(x: f64) -> f64 {
+    return x - (lfloor(x / 3.3554432E7 + 0.5) as f64) * 3.3554432E7;
+}
+
+pub fn dot(g: [i32; 3], d: f64, d2: f64, d3: f64) -> f64 {
+    (g[0 as usize]) as f64 * d + (g[1 as usize]) as f64 * d2 + (g[2 as usize]) as f64 * d3
+}
 
 pub fn grad(hash: u8, x: f64, y: f64, z: f64) -> f64 {
     return match hash & 0xF {
@@ -115,7 +149,7 @@ pub fn sha2long(mut seed: u64) -> u64 {
     hasher.update(bytes);
     let result = hasher.finalize();
     let mut ret_val: u64 = (result[0] & 0xFF) as u64;
-    for i in 1..min(8, result.len()) {
+    for i in 1..cmp::min(8, result.len()) {
         ret_val |= (((result[i] & 0xFF) as u64).wrapping_shl((i << 3) as u32)) as u64;
     }
     ret_val

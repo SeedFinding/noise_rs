@@ -1,6 +1,6 @@
 [package]
 name = "noise_rs"
-version = "0.1.13"
+version = "0.1.14"
 authors = ["Neil <neilhube12@gmail.com>"]
 edition = "2018"
 description="The perlin and simplex noise implementation in 2d and 3d"
@@ -21,4 +21,5 @@ opt-level = 3
 
 [lib]
 name="noise_rs"
-crate-types = ["rlib", "dylib", "bin"]
+path="src/lib.rs"
+crate-type = ["cdylib", "rlib", "staticlib"] # cdylib to make the shared library and rlib to link against bin.rs (if any)

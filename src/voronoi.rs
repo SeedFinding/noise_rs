@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use crate::math;
 use std::collections::HashMap;
+use crate::math::sqr;
 
 #[derive( Clone)]
 pub struct Voronoi {
@@ -77,16 +78,11 @@ impl Voronoi {
         let y_offset: f64 = Self::get_fiddle(fiddle);
         fiddle = next(fiddle, self.world_seed);
         let z_offset: f64 = Self::get_fiddle(fiddle);
-        return  Self::sqr(z_scaled + z_offset) +  Self::sqr(y_scaled + y_offset) + Self::sqr(x_scaled + x_offset);
+        return  sqr(z_scaled + z_offset) +  sqr(y_scaled + y_offset) + sqr(x_scaled + x_offset);
     }
 
     fn get_fiddle(l: i64) -> f64 {
         return ((((math::floor_mod(l >> 24, 1024i64)) as i32) as f64 / 1024.0f64) - 0.5) * 0.9;
     }
-
-    fn sqr(d: f64) -> f64 {
-        d * d
-    }
-
 }
 

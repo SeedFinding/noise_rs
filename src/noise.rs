@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 
 use java_random::Random;
-use crate::math::{modf, lerp3, grad};
+use crate::math::{modf, lerp3, grad, smooth_step};
+use crate::math;
 
 #[derive(Clone,Debug)]
 pub struct Noise {
@@ -67,7 +68,7 @@ impl Noise {
         let (integer_z, fractional_z) = modf(offset_z);
         let mut clamp_y: f64 = 0f64;
         if y_amplification != 0.0 {
-            clamp_y = (Self::min(min_y, fractional_y) / y_amplification).floor() * y_amplification;
+            clamp_y = (math::min(min_y, fractional_y) / y_amplification).floor() * y_amplification;
         }
         self.sample_and_lerp(integer_x as i32,
                              integer_y as i32,
@@ -75,22 +76,11 @@ impl Noise {
                              fractional_x,
                              fractional_y - clamp_y,
                              fractional_z,
-                             Self::smooth_step(fractional_x),
-                             Self::smooth_step(fractional_y),
-                             Self::smooth_step(fractional_z))
+                             smooth_step(fractional_x),
+                             smooth_step(fractional_y),
+                             smooth_step(fractional_z))
     }
 
-    pub fn min(a: f64, b: f64) -> f64 {
-        match a.partial_cmp(&b) {
-            None => { a }
-            Some(order) => {
-                match order {
-                    Ordering::Less => { a }
-                    _ => b
-                }
-            }
-        }
-    }
     pub fn sample_and_lerp(&self, int_x: i32, int_y: i32, int_z: i32, frac_x: f64, frac_y: f64, frac_z: f64, smooth_x: f64, smooth_y: f64, smooth_z: f64) -> f64 {
         let px_y = (self.lookup(int_x) as i32) + int_y;
         let px1_y = (self.lookup(int_x + 1) as i32) + int_y;
@@ -117,13 +107,4 @@ impl Noise {
         self.permutations[(index & 0xff) as usize]
     }
 
-    pub fn smooth_step_fast(x: f64) -> f64 {
-        // this is sadly incorrect due to lost of precision sniff
-        let x_3: f64 = x * x * x;
-        let x_4: f64 = x_3 * x;
-        10.0f64 * x_3 - 15.0f64 * x_4 + 6.0f64 * x_4 * x
-    }
-    pub fn smooth_step(x: f64) -> f64 {
-        x * x * x * (x * (x * 6.0f64 - 15.0f64) + 10.0f64)
-    }
 }

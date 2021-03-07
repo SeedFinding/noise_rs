@@ -4,6 +4,7 @@ use java_random::Random;
 use std::collections::HashMap;
 use intmap::IntMap;
 use crate::noise::Noise;
+use crate::math::dot;
 
 pub const F2: f64 = 0.3660254037844386;
 pub const G2: f64 = 0.21132486540518713;
@@ -76,10 +77,6 @@ impl SimplexNoise {
         self.noise.lookup(n as i32)
     }
 
-    fn dot(g: [i32; 3], d: f64, d2: f64, d3: f64) -> f64 {
-        (g[0 as usize]) as f64 * d + (g[1 as usize]) as f64 * d2 + (g[2 as usize]) as f64 * d3
-    }
-
     fn get_corner_noise3d(n: u8, x: f64, y: f64, z: f64, max: f64) -> f64 {
         let res: f64;
         let mut contribution: f64 = max - x * x - y * y - z * z;
@@ -87,10 +84,11 @@ impl SimplexNoise {
             res = 0.0;
         } else {
             contribution *= contribution;
-            res = contribution * contribution * Self::dot(GRADIENT[n as usize], x, y, z);
+            res = contribution * contribution * dot(GRADIENT[n as usize], x, y, z);
         }
         res
     }
+
     pub fn get_value_2d(&mut self, x: f64, z: f64) -> f64 {
         let key: u64 = (((x as u32) as u64) << 32 | ((z as u32) as u64)) as u64;
         let value: f64 = *self.cache2d.get(key).unwrap_or(&f64::MAX);
@@ -101,6 +99,7 @@ impl SimplexNoise {
         self.cache2d.insert(key, value);
         return value;
     }
+
     fn _get_value_2d(&self, x: f64, z: f64) -> f64 {
         let hairy_factor: f64 = (x + z) * F2;
         let temperature_x: i32 = (x + hairy_factor).floor() as i32;

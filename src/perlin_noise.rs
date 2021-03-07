@@ -1,10 +1,12 @@
 #![allow(dead_code)]
 
-use java_random::{Random, LCG};
 use std::collections::HashMap;
+
 use intmap::IntMap;
+use java_random::{LCG, Random};
+
+use crate::math::wrap;
 use crate::noise::Noise;
-use crate::math::lfloor;
 
 pub const SKIP_262: LCG = LCG::combine_java(262);
 
@@ -20,8 +22,9 @@ pub struct PerlinNoise {
 
 #[cfg(test)]
 mod perlin_test {
-    use super::*;
     use crate::create_range;
+
+    use super::*;
 
     #[test]
     fn test_coordinates() {
@@ -105,9 +108,9 @@ impl PerlinNoise {
         for sampler in &self.noise_octaves {
             if let Some(noise) = sampler {
                 noise_value += noise.get_noise_value(
-                    Self::wrap(x * persistence),
-                    if use_default_y { -noise.y0 } else { Self::wrap(y * persistence) },
-                    Self::wrap(z * persistence),
+                    wrap(x * persistence),
+                    if use_default_y { -noise.y0 } else { wrap(y * persistence) },
+                    wrap(z * persistence),
                     y_amplification * persistence,
                     y_min * persistence) * lacunarity;
             }
@@ -123,7 +126,5 @@ impl PerlinNoise {
         self.sample(x, 0.0f64, z, y_amplification, y_min, false)
     }
 
-    fn wrap(x: f64) -> f64 {
-        return x - (lfloor(x / 3.3554432E7 + 0.5) as f64) * 3.3554432E7;
-    }
+
 }
