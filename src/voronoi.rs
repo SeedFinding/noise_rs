@@ -19,8 +19,8 @@ impl Voronoi {
     }
     pub fn get_fuzzy_positions(&mut self, x: i32, y: i32, z: i32) -> (i32, i32, i32) {
         let key: u128 = (((x as u32) as u128) << 64 | ((y as u32) as u128) << 32 | ((z as u32) as u128)) as u128;
-        let mut value:u128=*self.cache.get(&key).unwrap_or(&u128::MAX);
-        if value !=u128::MAX {
+        let mut value:u128=*self.cache.get(&key).unwrap_or(&std::u128::MAX);
+        if value !=std::u128::MAX {
             let x:i32= (value >> 64 & 0xFFFF_FFFFu128) as i32;
             let y:i32= (value >> 32 & 0xFFFF_FFFFu128) as i32;
             let z:i32= (value & 0xFFFF_FFFFu128) as i32;

@@ -1,8 +1,9 @@
 use java_random::Random;
 use crate::math::{modf, lerp3, grad, smooth_step};
 use crate::math;
+use std::fmt;
 
-#[derive(Clone,Debug)]
+#[derive(Clone)]
 pub struct Noise {
     pub x0: f64,
     pub y0: f64,
@@ -10,6 +11,18 @@ pub struct Noise {
     pub permutations: [u8; 256],
 }
 
+fn unsize<T>(x: &[T]) -> &[T] { x }
+
+impl fmt::Debug for Noise {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Noise")
+            .field("x0", &self.x0)
+            .field("y0", &self.y0)
+            .field("z0", &self.z0)
+            .field("permutations", &unsize(&self.permutations))
+            .finish()
+    }
+}
 
 #[cfg(test)]
 mod noise_test {
@@ -17,29 +30,28 @@ mod noise_test {
 
     #[test]
     fn test_gen_1() {
-        let noise=Noise::new(&mut Random::with_seed(1));
-        let value=noise.get_noise_value(0f64,0f64,0f64,0f64,0f64);
-        assert_eq!(value,0.10709059654197703f64)
+        let noise = Noise::new(&mut Random::with_seed(1));
+        let value = noise.get_noise_value(0f64, 0f64, 0f64, 0f64, 0f64);
+        assert_eq!(value, 0.10709059654197703f64);
     }
 
     #[test]
     fn test_gen_1million() {
-        let noise=Noise::new(&mut Random::with_seed(1));
-        let mut score:f64=0.0;
-        let bound=100;
+        let noise = Noise::new(&mut Random::with_seed(1));
+        let mut score: f64 = 0.0;
+        let bound = 100;
         for x in 0..bound {
             for y in 0..bound {
                 for z in 0..bound {
-                    score+=noise.get_noise_value(x as f64, y as f64, z as f64, 0f64, 0f64);
+                    score += noise.get_noise_value(x as f64, y as f64, z as f64, 0f64, 0f64);
                 }
             }
         }
-        assert_eq!(score,5.106111820344766f64);
+        assert_eq!(score, 5.106111820344766f64);
     }
 }
 
 impl Noise {
-
     pub fn new(random: &mut Random) -> Noise {
         let x0: f64 = random.next_double() * 256.0;
         let y0: f64 = random.next_double() * 256.0;
@@ -104,5 +116,4 @@ impl Noise {
     pub fn lookup(&self, index: i32) -> u8 {
         self.permutations[(index & 0xff) as usize]
     }
-
 }
