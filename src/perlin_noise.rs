@@ -3,12 +3,16 @@
 use std::collections::HashMap;
 
 use intmap::IntMap;
-use java_random::{LCG, Random};
+use java_random::LCG;
+use java_random::Random;
 
 use crate::math::wrap;
 use crate::noise::Noise;
 
+#[cfg(feature = "const_fn")]
 pub const SKIP_262: LCG = LCG::combine_java(262);
+#[cfg(not(feature = "const_fn"))]
+pub const SKIP_262: LCG = LCG{ multiplier: 253119540505593, addend: 184089911826014 };
 
 #[derive(Clone, Debug)]
 pub struct PerlinNoise {
@@ -125,6 +129,4 @@ impl PerlinNoise {
     pub fn sample_surface(&self, x: f64, z: f64, y_amplification: f64, y_min: f64) -> f64 {
         self.sample(x, 0.0f64, z, y_amplification, y_min, false)
     }
-
-
 }

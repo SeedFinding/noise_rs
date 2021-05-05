@@ -1,16 +1,20 @@
 [package]
 name = "noise_rs"
-version = "0.1.14"
+version = "0.1.15"
 authors = ["Neil <neilhube12@gmail.com>"]
 edition = "2018"
-description="The perlin and simplex noise implementation in 2d and 3d"
-categories=["algorithms","data-structures"]
-license="MIT"
+description = "The perlin and simplex noise implementation in 2d and 3d"
+categories = ["algorithms", "data-structures"]
+license = "MIT"
 
 [dependencies]
 intmap = "0.7.0"
-java_random = "0.1.6"
+java_random = { version = "0.1.7", default-features = false }
 sha2 = "0.9.1"
+
+[features]
+default = ["const_fn"]
+const_fn = ["java_random/const_fn"]
 
 [profile.dev]
 opt-level = 3
@@ -20,6 +24,6 @@ opt-level = 3
 
 
 [lib]
-name="noise_rs"
-path="src/lib.rs"
+name = "noise_rs"
+path = "src/lib.rs"
 crate-type = ["cdylib", "rlib", "staticlib"] # cdylib to make the shared library and rlib to link against bin.rs (if any)

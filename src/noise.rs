@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use java_random::Random;
 use crate::math::{modf, lerp3, grad, smooth_step};
 use crate::math;
